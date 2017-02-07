@@ -204,3 +204,88 @@ class PwnTube
         end
     end
 end
+
+def p32(x)
+  return [x].pack("L")
+end
+
+def p64(x)
+  return [x].pack("Q")
+end
+
+class DLresolve
+  
+  def initialize(arch, dynsym, dynstr, relplt)
+    @reloc_offset = {}
+    @func_addr = {}
+    @arch = arch
+    @dynsym = dynsym
+    @dynstr = dynstr
+    @relplt = relplt
+  end
+
+  def set_func_addr(addr, dynstr)
+    @func_addr[dynstr] = addr
+  end
+
+  def resolve(buf)
+    d = {}
+    dynstr = dynsym = relplt = ""
+
+    buf_dynstr_addr = buf
+    @func_addr.each do |s, a|
+      d[s] = dynstr.length
+      dynstr += s + "\x00"
+    end
+
+    buf_dynsym = buf_dynstr_addr + dynstr.length
+    if @arch == "x86"
+      align_dynsym = ((0x10 - buf_dynsym - @dynsym) % 0x10) % 0x10
+    elsif @arch == "x86_64"
+      align_dynsym = ((0x18 - buf_dynsym - @dynsym) % 0x18) % 0x18
+    end
+    buf_dynsym += align_dynsym
+
+    d.each do |s, of|
+      if @arch == "x86"
+        dynsym += p32(buf_dynstr + of - @dynstr)
+        dynsym += p32(0) * 2
+        dynsym += p32(0x12)
+      elsif @arch == "x86_64"
+        dynsym += p32(buf_dynstr + of - @dynstr)
+        dynysm += p32(0x12)
+        dynsym += p64(0)
+        dynsym += p64(0)        
+      end
+    end
+    buf_relplt = buf_dynsym + dynsym.length
+    if @arch == "x86"
+      align_relplt = 0
+      r_info = (buf_dynsym - @dynsym) / 0x10
+    elsif @arch == "x86_64"
+      align_relplt = (0x18 - (buf_relplt - @relplt) % 0x18) % 0x18
+      r_info = (buf_dynsym - @dynsym) / 0x18
+    end
+    buf_relplt += align_relplt
+
+    @func_addr.each do |s, a|
+      if @arch == "x86"
+        @reloc_offset[s] = buf_relplt + replt.length - @relplt
+        relplt += p32(a)
+        relplt += p32(r_info << 8 | 0x7)
+      elsif @arch == "x86_64"
+        @reloc_offset[s] = (buf_relplt + replt.length - @relplt) / 0x18
+        relplt += p64(a)
+        relplt += p32(0x7)
+        relplt += p32(r_info)
+        relplt += p64(0)
+      end
+      r_info += 1
+    end
+    dynstr + "@" * (align_dynsym) + dynsym + "@" * (align_relplt) + relplt
+  end
+
+  def offset(dynstr)
+    @reloc_offset[dynstr]
+  end
+end
