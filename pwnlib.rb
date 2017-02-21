@@ -179,14 +179,29 @@ class PwnTube
   def log(*args)
     @log_output.puts *args unless @log_output.nil?
   end
+
+  def debugging(&block)
+    @debug = true
+    yield
+    @debug = false
+  end
+  
 end
 
-def p32(x)
-  return [x].pack("L")
+def p32(*x)
+  x.pack("L*")
 end
 
-def p64(x)
-  return [x].pack("Q")
+def p64(*x)
+  x.pack("Q*")
+end
+
+def u32(x)
+  x.unpack("L*")
+end
+
+def u64(x)
+  x.unpack("Q*")
 end
 
 =begin This code is dame.
