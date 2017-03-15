@@ -199,7 +199,7 @@ class PwnTube
   
 end
 
-def asm2str(fname, arch)
+def asm(fname, arch)
 
   unless File.exist?(fname)
     STDERR.puts "Not found: #{fname}"
@@ -213,6 +213,7 @@ def asm2str(fname, arch)
     text_offset = text_header[16, 5].unapck("L")[0]
     text_size   = text_header[20, 5].unapck("L")[0]
     return result[text_offset, text_size]
+    
   elsif arch == :x64
     result = `nasm -f elf64 #{fname} -o /dev/stdout`
     e_shoff     = result[40,9].unpack("Q")[0]
@@ -220,8 +221,13 @@ def asm2str(fname, arch)
     text_offset = text_header[24,9].unpack("Q")[0]
     text_size   = text_header[32,9].unpack("Q")[0]
     return result[text_offset, text_size]
+    
   end
   
+end
+
+def libc_offset(path, func)
+  `nm -D #{path} | grep -w #{func}`.split(" ")[0].to_i(16)
 end
 
 def p32(*x)
@@ -239,6 +245,7 @@ end
 def u64(x)
   x.unpack("Q*")
 end
+
 
 =begin This code is dame.
 
