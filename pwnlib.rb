@@ -209,10 +209,10 @@ def asm(fname, arch)
   if arch == :x86
     result = `nasm -f elf #{fname} -o /dev/stdout`
     e_shoff     = result[32,4].unpack("L")[0]
-    text_header = result[e_shoff*2, 40]
-    text_offset = text_header[16, 5].unapck("L")[0]
-    text_size   = text_header[20, 5].unapck("L")[0]
-    return result[text_offset, text_size]
+    text_header = result[e_shoff + 40, 40]
+    text_offset = text_header[16, 4].unpack("L")[0]
+    text_size   = text_header[20, 5].unpack("L")[0]
+    return result[text_offset, text_size].force_encoding("ascii-8bit")
     
   elsif arch == :x64
     result = `nasm -f elf64 #{fname} -o /dev/stdout`
