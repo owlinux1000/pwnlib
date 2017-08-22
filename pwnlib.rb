@@ -203,7 +203,6 @@ class PwnTube
 end
 
 def asm(fname, arch)
-
   unless File.exist?(fname)
     STDERR.puts "Not found: #{fname}"
     exit 1
@@ -276,4 +275,3 @@ MAP_ANONYMOUS       = 0x20
 PREV_INUSE          = 0b001
 IS_MMAPED           = 0b010
 IS_NON_MAINARENA    = 0b100
-
