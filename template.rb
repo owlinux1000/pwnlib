@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # coding: ascii-8bit
 require 'pwnlib'
-require 'fsalib'
 require 'sasm'
 include Shellcode
 
